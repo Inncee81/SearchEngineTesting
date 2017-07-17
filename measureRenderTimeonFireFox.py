@@ -34,7 +34,11 @@ result = result/10
 print(result)
 
 # test on firefox using javascript
+
+# measure rendering time on some web services 
 urlList = ["http://www.naver.com", "http://www.daum.net", "http://www.google.com", "http://www.yahoo.com"]
+nextIDList = ['nx_query']
+
 
 def findSearchTagID(pageSource):
 	soup = BeautifulSoup(pageSource, 'html.parser')
@@ -47,7 +51,8 @@ def findSearchTagID(pageSource):
 
 	return ""
 
-for url in urlList:
+for i in range(0, len(urlList)):
+	url = urlList[i]
 	driver.get(url)
 	html = driver.page_source
 
@@ -64,3 +69,4 @@ for url in urlList:
 		renderEndTime = time.time()
 
 		responseTime = renderEndTime - submitStartTime
+		print(responseTime)
