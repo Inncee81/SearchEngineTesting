@@ -51,27 +51,43 @@ def findSearchTagID(pageSource):
 
 	return ""
 
-for i in range(0, len(urlList)):
-	url = urlList[i]
-	print(url)
-	driver.get(url)
-	html = driver.page_source
+dict = {"naver":0, "daum":0, "google":0, "yahoo":0}
 
-	searchTagID = findSearchTagID(html)
-	print("submit id : ", searchTagID)
+for j in range(0,10):
+	for i in range(0, len(urlList)):
+		url = urlList[i]
+		print(url)
+		driver.get(url)
+		html = driver.page_source
 
-	if len(searchTagID) > 0:
+		searchTagID = findSearchTagID(html)
+		print("submit id : ", searchTagID)
 
-		inputElem = driver.find_element_by_id(searchTagID)
-		inputElem.send_keys(searchKeyword)
-		inputElem.send_keys(Keys.RETURN)
+		if len(searchTagID) > 0:
 
-		submitStartTime = time.time()
+			inputElem = driver.find_element_by_id(searchTagID)
+			inputElem.send_keys(searchKeyword)
+			inputElem.send_keys(Keys.RETURN)
 
-		WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, nextIDList[i])))
-		renderEndTime = time.time()
+			submitStartTime = time.time()
 
-		responseTime = renderEndTime - submitStartTime
-		print(responseTime)
+			WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, nextIDList[i])))
+			renderEndTime = time.time()
 
-	time.sleep(1)
+			responseTime = renderEndTime - submitStartTime
+
+			if i == 0:
+				dict["naver"] += responseTime
+			if i == 1:
+				dict["daum"] += responseTime
+			if i == 2:
+				dict["google"] += responseTime
+			if i == 3:
+				dict["yahoo"] += responseTime
+
+		time.sleep(1)
+
+print("average of rendering time on NAVER = ", dict["naver"]/10)
+print("average of rendering time on DAUM = ", dict["daum"]/10)
+print("average of rendering time on GOOGLE = ", dict["google"]/10)
+print("average of rendering time on YAHOO = ", dict["yahoo"]/10)
