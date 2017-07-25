@@ -17,7 +17,7 @@ searchKeyword = "keyword"
 
 driver = webdriver.Firefox()
 
-urlList = ["http://www.naver.com", "http://www.daum.net", "http://www.google.com", "http://www.yahoo.com"]
+urlList = ["http://www.naver.com", "http://www.daum.net", "http://www.nate.com", "http://www.google.com", "http://www.baidu.com", ]
 nextIDList = ['nx_query','q','lst-ib','yschsp']
 
 
@@ -73,4 +73,6 @@ print("average of rendering time on DAUM = ", dict["daum"]/10)
 print("average of rendering time on GOOGLE = ", dict["google"]/10)
 print("average of rendering time on YAHOO = ", dict["yahoo"]/10)
 
+
+## 한 keyword로 urlList의 모든 페이지에서 1000번 검색 후 시간 측정, 자동으로 캐시를 지우도록 하는 방법은 없을까? - 시크릿모드로 해보기
 

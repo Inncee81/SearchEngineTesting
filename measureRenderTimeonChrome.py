@@ -7,67 +7,74 @@ import time
 import random
 from bs4 import BeautifulSoup
 
+def findSearchTagID(pageSource):
+	soup = BeautifulSoup(pageSource, 'html.parser')
+	inputTagList = soup.find_all('input')
 
-result = 0
-driver = webdriver.Chrome()
-testURL = "http://www.naver.com"
-for i in range(1,10):
-	driver.implicitly_wait(3)
-	driver.get(testURL)
-	inputElem = driver.find_element_by_id('query')
-	inputElem.send_keys(searchKeyword)
-	inputElem.send_keys(Keys.RETURN)
+	for inputTag in inputTagList:
+		if inputTag['type']=='search' or inputTag['type'] == 'text':
+			if inputTag['id'] != None:
+				return inputTag['id']
 
-	submitStartTime = time.time()
+	return ""
 
-	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "nx_query")))
-	renderEndTime = time.time()
+urlList = ["http://www.naver.com", "http://www.daum.net","http://www.nate.com", "http://www.baidu.com", "http://www.google.com", "http://www.yahoo.com"]
+keywordList = ["spiderman", "daejeon", "pokemon"]
+searchTagIDList = {"http://www.naver.com":"query", "http://www.daum.net":"q", "http://www.nate.com":"q","http://www.baidu.com":"kw", "http://www.google.com":"lst-ib", "http://www.yahoo.com":"uh-search-box"}
 
-	responseTime = renderEndTime - submitStartTime
-	result += responseTime
-	time.sleep(random.randint(1,5))
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("--incognito")
 
-result = result/10
-print(result)
+driver = webdriver.Chrome(chrome_options=chrome_options)
 
-# Compare rendering time between domestic web service and abroad web service
-urlList = ["http://www.naver.com", "http://www.daum.net", "http://www.baidu.com", "http://www.google.com", "http://www.yahoo.com"]
+## 브라우저 시크릿 모드로 실행 
+## 한 keyword로 urlList의 모든 페이지에서 1000번 검색 후 시간 측정
 
-## test using explicit wait
-driver.get("http://www.naver.com")
+jsSourceCode = "return performance.timing.loadEventEnd - performance.timing.navigationStart;"
 
-inputElem = driver.find_element_by_id('query')
-inputElem.send_keys("defcon")
-inputElem.send_keys(Keys.RETURN)
+for url in urlList:
+	print(url)
+	for keyword in keywordList:
+		result = 0
 
-submitStartTime = time.time()
+		for i in range(0,100):
+			driver.get(url)
 
-WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "nx_query")))
-renderEndTime = time.time()
+			searchTagID = searchTagIDList[url]
 
-responseTime = renderEndTime - submitStartTime
-print(responseTime)
+			inputElem = driver.find_element_by_id(searchTagID)
+			inputElem.send_keys(keyword)
+			inputElem.send_keys(Keys.RETURN)
 
-## test using javascript
-driver.get("http://www.naver.com")
+			renderingTime = driver.execute_script(jsSourceCode)
+			result += renderingTime
+			time.sleep(1)
 
-inputElem = driver.find_element_by_id('query')
-inputElem.send_keys("codegate")
-inputElem.send_keys(Keys.RETURN)
-submitTime = time.time()
-
-jsSourceCode = 'return performance.timing.loadEventEnd - performance.timing.navigationStart;'
-renderingTime = driver.execute_script(jsSourceCode)
-print(renderingTime)
+		print(keyword," : ", result/100)
 
 
-jsSourceCode = 'return performance.timing.loadEventEnd;'
-loadingCompleteTime = driver.execute_script(jsSourceCode)
-print(loadingCompleteTime)
 
-print("submit Time : ", submitTime)
-print("loading complete time : ", loadingCompleteTime)
-print("duration Time : ", loadingCompleteTime-submitTime*1000)
 
-print("renderingTime : ", renderingTime)
-## 
+
+
+
+
+
+
+
+
+
+#driver.get("http://www.naver.com")
+
+#inputElem = driver.find_element_by_id('query')
+#inputElem.send_keys("defcon")
+#inputElem.send_keys(Keys.RETURN)
+
+#submitStartTime = time.time()
+
+#WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "nx_query")))
+#renderEndTime = time.time()
+
+#responseTime = renderEndTime - submitStartTime
+#print(responseTime)
+
