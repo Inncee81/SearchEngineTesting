@@ -7,6 +7,6 @@ import time
 import random
 from bs4 import BeautifulSoup
 
-driver = webdriver.Ie()
+driver = webdriver.Ie("C:\\Users\\user\\Downloads\\IEDriverServer_x64_2.42.0\\IEDriverServer")
 
 driver.get("http://www.naver.com")

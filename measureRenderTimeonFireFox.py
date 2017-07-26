@@ -11,15 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import random
 from bs4 import BeautifulSoup
-
-testURL = "https://www.naver.com"
-searchKeyword = "keyword"
-
-driver = webdriver.Firefox()
-
-urlList = ["http://www.naver.com", "http://www.daum.net", "http://www.nate.com", "http://www.google.com", "http://www.baidu.com", ]
-nextIDList = ['nx_query','q','lst-ib','yschsp']
-
+import json
 
 def findSearchTagID(pageSource):
 	soup = BeautifulSoup(pageSource, 'html.parser')
@@ -32,47 +24,42 @@ def findSearchTagID(pageSource):
 
 	return ""
 
-dict = {"naver":0, "daum":0, "google":0, "yahoo":0}
+urlList = ["http://www.naver.com", "http://www.daum.net","http://www.nate.com", "http://www.baidu.com", "http://www.google.com", "http://www.bing.com"]
+keywordList = ["spiderman", "okja", "dunkirk"]
+searchTagIDList = {"http://www.naver.com":"query", "http://www.daum.net":"q", "http://www.nate.com":"q","http://www.baidu.com":"kw", "http://www.google.com":"lst-ib", "http://www.bing.com":"sb_form_q"}
 
-for j in range(0,10):
-	for i in range(0, len(urlList)):
-		url = urlList[i]
-		print(url)
-		driver.get(url)
-		html = driver.page_source
+firefox_profile = webdriver.FirefoxProfile()
+firefox_profile.set_preference("browser.privatebrowsing.autostart", True)
 
-		searchTagID = findSearchTagID(html)
-		print("submit id : ", searchTagID)
+driver = webdriver.Firefox(executable_path = "C:\\Users\\user\\Downloads\\geckodriver-v0.18.0-win64\\geckodriver",firefox_profile=firefox_profile)
 
-		if len(searchTagID) > 0:
+jsSourceCode = "return performance.timing.loadEventEnd - performance.timing.requestStart;"
+resultDict = {}
+def testInURL(url):
+	print(url)
+	for keyword in keywordList:
+		result = 0
+
+		tmpList = []
+		for i in range(0,50):
+			driver.get(url)
+
+			searchTagID = searchTagIDList[url]
 
 			inputElem = driver.find_element_by_id(searchTagID)
-			inputElem.send_keys(searchKeyword)
+			inputElem.send_keys(keyword)
 			inputElem.send_keys(Keys.RETURN)
 
-			submitStartTime = time.time()
+			renderingTime = driver.execute_script(jsSourceCode)
 
-			WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, nextIDList[i])))
-			renderEndTime = time.time()
+			tmpList.append(renderingTime)
+			time.sleep(random.randint(1,5))
+		
+		keyName = url.split(".")[1]+"_"+keyword
+		resultDict[keyName] = tmpList
 
-			responseTime = renderEndTime - submitStartTime
+		with open('firefoxTest'+'_'+url.split(".")[1]+'.txt', 'w') as file:
+			file.write(json.dumps(resultDict))
 
-			if i == 0:
-				dict["naver"] += responseTime
-			if i == 1:
-				dict["daum"] += responseTime
-			if i == 2:
-				dict["google"] += responseTime
-			if i == 3:
-				dict["yahoo"] += responseTime
-
-		time.sleep(1)
-
-print("average of rendering time on NAVER = ", dict["naver"]/10)
-print("average of rendering time on DAUM = ", dict["daum"]/10)
-print("average of rendering time on GOOGLE = ", dict["google"]/10)
-print("average of rendering time on YAHOO = ", dict["yahoo"]/10)
-
-
-## 한 keyword로 urlList의 모든 페이지에서 1000번 검색 후 시간 측정, 자동으로 캐시를 지우도록 하는 방법은 없을까? - 시크릿모드로 해보기
-
+testInURL("http://www.baidu.com")
+testInURL("http://www.bing.com")
