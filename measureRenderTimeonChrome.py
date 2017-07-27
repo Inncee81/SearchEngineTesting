@@ -33,13 +33,16 @@ driver = webdriver.Chrome("C:\\Users\\user\\Downloads\\chromedriver_win32\\chrom
 
 jsSourceCode = "return performance.timing.loadEventEnd - performance.timing.requestStart;"
 resultDict = {}
+
 def testInURL(url):
 	print(url)
+	urlName = url.split(".")[1]
+
 	for keyword in keywordList:
 		result = 0
 
 		tmpList = []
-		for i in range(0,50):
+		for i in range(0,30):
 			driver.get(url)
 
 			searchTagID = searchTagIDList[url]
@@ -53,10 +56,10 @@ def testInURL(url):
 			tmpList.append(renderingTime)
 			time.sleep(random.randint(1,5))
 		
-		keyName = url.split(".")[1]+"_"+keyword
+		keyName = urlName+"_"+keyword
 		resultDict[keyName] = tmpList
 
-		with open('chromeTest'+'_'+url.split(".")[1]+'.txt', 'w') as file:
+		with open('result/chromeTest'+'_'+urlName+'.txt', 'w') as file:
 			file.write(json.dumps(resultDict))
 
 

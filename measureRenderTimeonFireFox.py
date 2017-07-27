@@ -35,13 +35,16 @@ driver = webdriver.Firefox(executable_path = "C:\\Users\\user\\Downloads\\geckod
 
 jsSourceCode = "return performance.timing.loadEventEnd - performance.timing.requestStart;"
 resultDict = {}
+
 def testInURL(url):
 	print(url)
+	urlName = url.split(".")[1]
+
 	for keyword in keywordList:
 		result = 0
 
 		tmpList = []
-		for i in range(0,50):
+		for i in range(0,30):
 			driver.get(url)
 
 			searchTagID = searchTagIDList[url]
@@ -55,10 +58,10 @@ def testInURL(url):
 			tmpList.append(renderingTime)
 			time.sleep(random.randint(1,5))
 		
-		keyName = url.split(".")[1]+"_"+keyword
+		keyName = urlName+"_"+keyword
 		resultDict[keyName] = tmpList
 
-		with open('firefoxTest'+'_'+url.split(".")[1]+'.txt', 'w') as file:
+		with open('result/firefoxTest'+'_'+urlName+'.txt', 'w') as file:
 			file.write(json.dumps(resultDict))
 
 testInURL("http://www.baidu.com")
