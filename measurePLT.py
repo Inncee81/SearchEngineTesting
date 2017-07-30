@@ -26,8 +26,8 @@ responseTime = renderEndTime - submitStartTime
 
 ## javascript computation
 
-## Browswermob
 
+## Browswermob
 from browsermobproxy import Server
 
 server = Server("browsermob-proxy")
