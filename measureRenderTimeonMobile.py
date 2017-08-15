@@ -8,95 +8,50 @@ import random
 from bs4 import BeautifulSoup
 
 
-testURL = "https://www.naver.com"
-searchKeyword = "keyword"
+keywordList = {"pokemon", "toeic", "weather", "melon"}
+jsScript = "return performance.timing.loadEventEnd - performance.timing.requestStart;"
 
-## Todo : measure web rendering time on mobile system using javascript
-driver  = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.ANDROID)
+def testOnMobileWebView(url, searchTagID):
+	# resultDict : {"url_keyword":[searchingTimeList]}
+	resultDict = {}
+	urlKeyword = url.split(".")[1]
 
-#driver.get(testURL)
-#inputElem = driver.find_element_by_id('query')
-
-#inputElem.send_keys(searchKeyword)
-#inputElem.send_keys(Keys.RETURN)
-#submitStartTime = time.time()
-#time.sleep(0.5)
-
-## page loading time
-#driver.execute_script("var result = 0; window.onload = function(){var now = new Date().getTime(); result = now - performance.timing.navigationStart;}")
-
-#print("render start time : ", submitStartTime)
-#print("render end time : ", renderEndTime)
-
-#print(renderEndTime-submitStartTime)
-
-##Todo : measure response time on mobile web using explicit wait in selenium
-#driver.get(testURL)
-#inputElem = driver.find_element_by_id('query')
-#inputElem.send_keys(searchKeyword)
-#inputElem.send_keys(Keys.RETURN)
-#submitStartTime = time.time()
-
-# Timeout: 10s 
-#WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "nx_query")))
-#renderEndTime = time.time()
-
-#responseTime = renderEndTime - submitStartTime
-
-urlList = ["http://www.naver.com", "http://www.daum.net", "http://www.google.com", "http://www.yahoo.com"]
-nextIDList = ['nx_query','q','lst-ib','yschsp']
-
-
-def findSearchTagID(pageSource):
-	soup = BeautifulSoup(pageSource, 'html.parser')
-	inputTagList = soup.find_all('input')
-
-	for inputTag in inputTagList:
-		if inputTag['type']=='search' or inputTag['type'] == 'text':
-			if inputTag['id'] != None:
-				return inputTag['id']
-
-	return ""
-
-
-
-dict = {"naver":0, "daum":0, "google":0, "yahoo":0}
-
-for j in range(0,10):
-	for i in range(0, len(urlList)):
-		url = urlList[i]
-		print(url)
+	for keyword in keywordList:
+		# connect to mobile web view using selendroid
+		driver  = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.ANDROID)
 		driver.get(url)
+
 		time.sleep(2)
-		html = driver.page_source
+		inputElement = driver.find_element_by_id(searchTagID)
+		inputElement.send_keys(keyword)
+		inputElement.send_keys(Keys.RETURN)
 
-		searchTagID = findSearchTagID(html)
-		print("submit id : ", searchTagID)
+		time.sleep(2)
 
-		if len(searchTagID) > 0:
-			inputElem = driver.find_element_by_id(searchTagID)
-			inputElem.send_keys(searchKeyword)
-			inputElem.send_keys(Keys.RETURN)
+		# measure (loadEventEnd - requestStart) on url
+		searchingTime = driver.execute_script(jsSourceCode)
 
-			submitStartTime = time.time()
+		resultDict[urlKeyword+"_"+keyword] = []
+		resultDict[urlKeyword+"_"+keyword].append(searchingTime)
 
-			WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, nextIDList[i])))
-			renderEndTime = time.time()
+		
+		# 1) just string : log format = "[url]_keyword_searchingTime"
+		# 2) json format = {"url_keyword":[searchingTimeList]}
 
-			responseTime = renderEndTime - submitStartTime
+	# write the result on file
+	with open('result/mobileWebView'+'_'+urlName+'.txt', 'w') as file:
+		file.write(json.dumps(resultDict))
 
-			if i == 0:
-				dict["naver"] += responseTime
-			if i == 1:
-				dict["daum"] += responseTime
-			if i == 2:
-				dict["google"] += responseTime
-			if i == 3:
-				dict["yahoo"] += responseTime
 
-		time.sleep(1)
 
-print("average of rendering time on NAVER = ", dict["naver"]/10)
-print("average of rendering time on DAUM = ", dict["daum"]/10)
-print("average of rendering time on GOOGLE = ", dict["google"]/10)
-print("average of rendering time on YAHOO = ", dict["yahoo"]/10)
+def testOnMobileChrome():
+
+
+if __name__ == "__main__":
+	# test urls
+	searchTagIDDict = {"http://www.naver.com":"query", "http://www.daum.net":"q","http://www.baidu.com":"kw", "http://www.google.com":"lst-ib", "http://www.bing.com":"sb_form_q"}
+
+	## Todo : measure time on mobile web view
+	
+	## Todo : measure time on mobile chrome
+	# connect to mobile chrome using selenium

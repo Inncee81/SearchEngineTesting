@@ -1,0 +1,14 @@
+timeval signed
+title
+58.229.156.60:443_==>_192.168.10.158:58128 (throughput)
+xlabel
+time
+ylabel
+thruput (bytes/sec)
+dot 1501564903.012274 6444 yellow
+dot 1501564903.072778 23932 yellow
+dot 1501564903.073970 1214765 yellow
+dot 1501564903.077915 253992 yellow
+dot 1501564903.080252 13264 yellow
+dot 1501564903.122997 725 yellow
+go
