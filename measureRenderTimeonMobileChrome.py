@@ -10,11 +10,18 @@ import json
 
 
 keywordList = ["hangout", "kakaotalk", "facebook", "instagram", "twitter"]
-jsSourceCode = "return performance.timing.loadEventEnd - performance.timing.requestStart;"
-driver  = webdriver.Remote(desired_capabilities=webdriver.DesiredCapabilities.ANDROID)
 
-def testOnMobileWebView(url, searchTagID):
-	# resultDict : {"url_keyword":[searchingTimeList]}
+js_searchTime = "return performance.timing.loadEventEnd - performance.timing.requestStart;"
+js_renderTime = "return performance.timing.loadEventEnd - performance.timing.domLoading;"
+js_networkTime = "return performance.timing.responseEnd - performance.timing.requestStart;"
+## must start adb-server : "adb start-server" on cmd
+
+options = webdriver.ChromeOptions()
+options.add_experimental_option('androidPackage', 'com.android.chrome')
+options.add_argument("--incognito")
+driver = webdriver.Chrome(chrome_options=options)
+
+def testOnMobileChrome(url, searchTagID):
 	resultDict = {}
 	urlKeyword = url.split(".")[1]
 
@@ -31,16 +38,19 @@ def testOnMobileWebView(url, searchTagID):
 		time.sleep(5)
 
 		# measure (loadEventEnd - requestStart) on url
-		searchingTime = driver.execute_script(jsSourceCode)
+		searchingTime = driver.execute_script(js_searchTime)
+		networkTime = driver.execute_script(js_networkTime)
+		renderTime = driver.execute_script(js_renderTime)
 
-		resultDict[urlKeyword+"_"+keyword] = []
-		resultDict[urlKeyword+"_"+keyword].append(searchingTime)
+		resultDict[urlKeyword+"_"+keyword+"_"+"searchTime"] = searchingTime
+		resultDict[urlKeyword+"_"+keyword+"_"+"networkTime"] = networkTime
+		resultDict[urlKeyword+"_"+keyword+"_"+"renderTime"] = renderTime
 		
 		# 1) just string : log format = "[url]_keyword_searchingTime"
 		# 2) json format = {"url_keyword":[searchingTimeList]}
 
 	# write the result on file
-	with open('result/mobileWebView.txt', 'a') as file:
+	with open('result/mChrome_timeAnalysis.txt', 'a') as file:
 		file.write(json.dumps(resultDict))
 
 
@@ -68,15 +78,9 @@ def createSearchTagIDDict(urlList):
 
 if __name__ == "__main__":
 	# test urls
-	searchTagIDDict = {"http://www.daum.net":"query_totalsearch","http://www.baidu.com":"index-kw", "http://www.google.com":"lst-ib", "http://www.bing.com":"sb_form_q", "http://www.naver.com":"query"}
+	searchTagIDDict = {"http://www.daum.net":"query_totalsearch","http://www.google.com":"lst-ib", "http://www.bing.com":"sb_form_q", "http://www.naver.com":"query"}
 	urlList = ["http://www.daum.net","http://www.baidu.com", "http://www.google.com", "http://www.bing.com", "http://www.naver.com"]
 
-	
 	for key, value in searchTagIDDict.items():
-		testOnMobileWebView(key, value)
+		testOnMobileChrome(key, value)
 
-
-	## Todo : measure time on mobile web view
-	
-	## Todo : measure time on mobile chrome
-	# connect to mobile chrome using selenium
