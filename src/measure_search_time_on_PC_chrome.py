@@ -1,33 +1,41 @@
-## 검색시간 : performance.timing.loadEventEnd - performance.timing.navigationStart
-## 네트워크 시간 : performance.timing.requestEnd - performance.timing.fetchStart
-## 페이지 로딩 시간 : performance.timing.loadEventEnd - performance.timing.domLoading
-
-### Mobile webdriver
-
-
-### Mobile Chrome
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import pandas as pd
 import time
-import random
-from bs4 import BeautifulSoup
-import json
+import matplotlib
+
 
 #searchTagIDDict = {"http://www.daum.net":"query_totalsearch","http://www.baidu.com":"index-kw", "http://www.google.com":"lst-ib", "http://www.bing.com":"sb_form_q", "http://www.naver.com":"query", "http://www.yahoo.co.jp":"srchtxt"}
-searchTagIDDict = {"http://www.naver.com":"query", "http://www.daum.net":"q", "http://www.nate.com":"q","http://www.baidu.com":"kw", "http://www.google.com":"lst-ib", "http://www.bing.com":"sb_form_q", "http://www.yahoo.co.jp":"srchtxt"}
+searchTagIDDict = {
+"http://www.naver.com":"query", 
+"http://www.daum.net":"q", 
+"http://www.nate.com":"q",
+"http://www.baidu.com":"kw", 
+"http://www.google.com":"lst-ib", 
+"http://www.bing.com":"sb_form_q", 
+"http://www.yahoo.co.jp":"srchtxt"
+}
 
 keyword = "미세먼지"
+timeDataFrame = pd.DataFrame()
 
 searchingTimeSC = "return performance.timing.loadEventEnd - performance.timing.navigationStart;"
-networkTimeSC = "return performance.timing.responseEnd-performance.timing.fetchStart;"
+networkTimeSC = "return performance.timing.responseEnd - performance.timing.fetchStart;"
 domLoadTimeSC = "return performance.timing.loadEventStart - performance.timing.domLoading;"
 pageLoadTimeSC = "return performance.timing.loadEventEnd - performance.timing.loadEventStart;"
 
-def testOnMobileChrome(url, searchTag, searchkeyword):
 
+####################################################################################################################
+##	* testOnMobileChrome : 크롬에서 웹사이트에 접속하여 검색 시간 측정
+##	- url : 웹 사이트 주소
+##	- searchTag : 검색 input tag id
+## 	- searchkeyword : 검색 키워드
+####################################################################################################################
+def testOnChrome(url, searchTag, searchkeyword):
+	global timeDataFrame
 	chrome_options = webdriver.ChromeOptions()
 	chrome_options.add_argument("--incognito")
 	driver = webdriver.Chrome(chrome_options=chrome_options)
@@ -42,7 +50,7 @@ def testOnMobileChrome(url, searchTag, searchkeyword):
 
 	time.sleep(5)
 
-		# measure (loadEventEnd - requestStart) on url
+	# measure (loadEventEnd - requestStart) on url
 	searchingTime = driver.execute_script(searchingTimeSC)
 	networkTime = driver.execute_script(networkTimeSC)
 	domLoadTime = driver.execute_script(domLoadTimeSC)
@@ -58,18 +66,17 @@ def testOnMobileChrome(url, searchTag, searchkeyword):
 
 	driver.quit()
 
-
-def findSearchTagID(pageSource):
-	soup = BeautifulSoup(pageSource, 'html.parser')
-	inputTagList = soup.find_all('input')
-
-	for inputTag in inputTagList:
-		if inputTag['type']=='search' or inputTag['type'] == 'text':
-			if inputTag['id'] != None:
-				return inputTag['id']
-
-	return ""
+	timeDataFrame = timeDataFrame.append({'url':url,'searchTime':searchingTime,'networkTime':networkTime,'domLoadTime':domLoadTime,'pageLoadTime':pageLoadTime}, ignore_index=True)
 
 if __name__ == "__main__":
-	for key, value in searchTagIDDict.items():
-		testOnMobileChrome(key, value, keyword)
+	for index in range(0,5):
+		for key, value in searchTagIDDict.items():
+			testOnChrome(key, value, keyword)
+
+	timeDataFrame.to_csv('../csv/P_C_searchTime_result.csv')
+
+
+
+	# visualize and compare searching time
+	# visualize and compare page loading time
+	# visualize and compare dom loading time
