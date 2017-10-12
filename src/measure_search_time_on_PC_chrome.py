@@ -69,11 +69,12 @@ def testOnChrome(url, searchTag, searchkeyword):
 	timeDataFrame = timeDataFrame.append({'url':url,'searchTime':searchingTime,'networkTime':networkTime,'domLoadTime':domLoadTime,'pageLoadTime':pageLoadTime}, ignore_index=True)
 
 if __name__ == "__main__":
-	for index in range(0,5):
+	for index in range(0,30):
+		print("*** index = ",index," ***" )
 		for key, value in searchTagIDDict.items():
 			testOnChrome(key, value, keyword)
 
-	timeDataFrame.to_csv('../csv/P_C_searchTime_result.csv')
+	timeDataFrame.to_csv('../csv/P_C_searchTime_result_'+keyword+'.csv')
 
 
 

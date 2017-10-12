@@ -29,26 +29,24 @@ pageLoadTimeSC = "return performance.timing.loadEventEnd - performance.timing.lo
 
 
 ####################################################################################################################
-##	* testOnFirefox : 크롬에서 웹사이트에 접속하여 검색 시간 측정
+##	* testOnIe : 크롬에서 웹사이트에 접속하여 검색 시간 측정
 ##	- url : 웹 사이트 주소
 ##	- searchTag : 검색 input tag id
 ## 	- searchkeyword : 검색 키워드
 ####################################################################################################################
-def testOnFirefox(url, searchTag, searchkeyword):
+def testOnIe(url, searchTag, searchkeyword):
 	global timeDataFrame
-	firefox_profile = webdriver.FirefoxProfile()
-	firefox_profile.set_preference("browser.privatebrowsing.autostart", True)
-	driver = webdriver.Firefox(firefox_profile=firefox_profile)
+	driver = webdriver.Ie()
 
 	driver.get(url)
-	time.sleep(10)
+	time.sleep(15)
 
 	inputElement = driver.find_element_by_id(searchTag)
 	
 	inputElement.send_keys(keyword)
 	inputElement.send_keys(Keys.RETURN)
 
-	time.sleep(10)
+	time.sleep(15)
 
 	# measure (loadEventEnd - requestStart) on url
 	searchingTime = driver.execute_script(searchingTimeSC)
@@ -69,15 +67,12 @@ def testOnFirefox(url, searchTag, searchkeyword):
 	timeDataFrame = timeDataFrame.append({'url':url,'searchTime':searchingTime,'networkTime':networkTime,'domLoadTime':domLoadTime,'pageLoadTime':pageLoadTime}, ignore_index=True)
 
 if __name__ == "__main__":
-	for index in range(0,30):
-		print("*** index = ",index," ***" )
+	for i in range(0, 30):
 		for key, value in searchTagIDDict.items():
-			testOnFirefox(key, value, keyword)
+			testOnIe(key, value, keyword)
 
-	timeDataFrame.to_csv('../csv/P_F_searchTime_result_'+keyword+'.csv')
+		#with open('../csv/P_I_searchTime_result.csv', 'a') as f:
+    	#	timeDataFrame.to_csv(f, header=False)
 
-
-
-	# visualize and compare searching time
-	# visualize and compare page loading time
-	# visualize and compare dom loading time
+    	#timeDataFrame = pd.DataFrame()
+	timeDataFrame.to_csv('../csv/P_I_searchTime_result.csv')
