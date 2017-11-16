@@ -83,17 +83,10 @@ def getMaxValue(measurementData_c, measurementData_f, measurementData_i, columnN
 	return max(maxList)
 
 if __name__ == "__main__":
-	measurementData_c = pd.read_csv('../csv/P_C_searchTime_result.csv')
+	measurementData_c = pd.read_csv('../csv/P_C_searchTime_result_finedust.csv')
 	measurementData_i = pd.read_csv('../csv/P_I_searchTime_result.csv')
-	
-	browserName = "chrome"
-	#visualizeSearchTime(measurementData, browserName)
-	#visualizeNetworkTime(measurementData, browserName)
-	#visualizeDomLoadingTime(measurementData, browserName)
-	#visualizePageLoadingTime(measurementData, browserName)
-
 	measurementData_f = pd.read_csv('../csv/P_F_searchTime_result_finedust.csv')
-	browserName = "Firefox"
+
 	visualizeTimeOn3Browsers(measurementData_c, measurementData_f, measurementData_i, 'searchTime')
 	visualizeTimeOn3Browsers(measurementData_c, measurementData_f, measurementData_i, 'networkTime')
 	visualizeTimeOn3Browsers(measurementData_c, measurementData_f, measurementData_i, 'domLoadTime')

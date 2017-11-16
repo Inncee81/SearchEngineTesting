@@ -12,20 +12,18 @@ import matplotlib
 searchTagIDDict = {
 "http://www.naver.com":"query", 
 "http://www.daum.net":"q", 
-"http://www.nate.com":"q",
 "http://www.baidu.com":"kw", 
 "http://www.google.com":"lst-ib", 
 "http://www.bing.com":"sb_form_q", 
 "http://www.yahoo.co.jp":"srchtxt"
 }
 
-keyword = "미세먼지"
+keyword = "정보과학회"
 timeDataFrame = pd.DataFrame()
 
 searchingTimeSC = "return performance.timing.loadEventEnd - performance.timing.navigationStart;"
 networkTimeSC = "return performance.timing.responseEnd - performance.timing.fetchStart;"
-domLoadTimeSC = "return performance.timing.loadEventStart - performance.timing.domLoading;"
-pageLoadTimeSC = "return performance.timing.loadEventEnd - performance.timing.loadEventStart;"
+pageLoadTimeSC = "return performance.timing.loadEventEnd - performance.timing.domLoading;"
 
 
 ####################################################################################################################
@@ -53,20 +51,20 @@ def testOnChrome(url, searchTag, searchkeyword):
 	# measure (loadEventEnd - requestStart) on url
 	searchingTime = driver.execute_script(searchingTimeSC)
 	networkTime = driver.execute_script(networkTimeSC)
-	domLoadTime = driver.execute_script(domLoadTimeSC)
+	#domLoadTime = driver.execute_script(domLoadTimeSC)
 	pageLoadTime = driver.execute_script(pageLoadTimeSC)
 
 	print("------------------------------------------------------------")
 	print("***",url,"***")
 	print("검색 시간 : ", searchingTime)
 	print("네트워크 시간 : ", networkTime)
-	print("dom 로드 시간 : ", domLoadTime)
+	#print("dom 로드 시간 : ", domLoadTime)
 	print("페이지 로드 시간 : ", pageLoadTime)
 	print("------------------------------------------------------------")
 
 	driver.quit()
 
-	timeDataFrame = timeDataFrame.append({'url':url,'searchTime':searchingTime,'networkTime':networkTime,'domLoadTime':domLoadTime,'pageLoadTime':pageLoadTime}, ignore_index=True)
+	timeDataFrame = timeDataFrame.append({'url':url,'searchTime':searchingTime,'networkTime':networkTime,'pageLoadTime':pageLoadTime}, ignore_index=True)
 
 if __name__ == "__main__":
 	for index in range(0,30):
