@@ -1,0 +1,20 @@
+#top{
+	background-color:lightblue;
+	height : auto;
+	padding : 20px;
+}
+
+#middle{
+	background-color:green;
+	height : auto;
+}
+
+#footer{
+	background-color:pink;
+	height : auto;
+}
+
+#pageTitle{
+	text-align : center;
+	
+}
